@@ -219,12 +219,28 @@ class ScatterToolUI(QtWidgets.QDialog):
         cmds.select(vertex_names)
 
         if cmds.objectType(scatter_name) == "transform":
-
+            instanceGroupName = cmds.group( empty=True, name=scatter_name + '_instance_grp#', )
             for vertex in vertex_names:
+
                 new_instance = cmds.instance(scatter_name)
+
+                cmds.parent(new_instance, instanceGroupName)
+
                 position = cmds.pointPosition(vertex, world=True)
                 cmds.move(position[0], position[1], position[2],
                           new_instance, absolute=True, worldSpace=True)
+
+                x_rotate = random.uniform(0, int(self.x_rotate_value_le.text()))
+                y_rotate = random.uniform(0, int(self.y_rotate_value_le.text()))
+                z_rotate = random.uniform(0, int(self.z_rotate_value_le.text()))
+
+                cmds.rotate(x_rotate, y_rotate, z_rotate, new_instance)
+
+                x_scale = random.uniform(0, int(self.x_scale_value_le.text()))
+                y_scale = random.uniform(0, int(self.x_scale_value_le.text()))
+                z_scale = random.uniform(0, int(self.x_scale_value_le.text()))
+
+                cmds.scale(x_scale, y_scale, z_scale, new_instance)
 
         else:
             cmds.error("That didn't work")
