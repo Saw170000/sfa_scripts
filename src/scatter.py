@@ -75,13 +75,6 @@ class ScatterToolUI(QtWidgets.QDialog):
         self.x_rotate_value_le.setText(str(size_rotate_x))
         self.y_rotate_value_le.setText(str(size_rotate_y))
         self.z_rotate_value_le.setText(str(size_rotate_z))
-        # scale sliders
-        size_scale_x = self.x_scale_slide.value()
-        size_scale_y = self.y_scale_slide.value()
-        size_scale_z = self.z_scale_slide.value()
-        self.x_scale_value_le.setText(str(size_scale_x))
-        self.y_scale_value_le.setText(str(size_scale_y))
-        self.z_scale_value_le.setText(str(size_scale_z))
 
     def _displacement_rotation_ui(self):
         self.rotation_lbl = QtWidgets.QLabel("Random Rotate Offset")
@@ -120,18 +113,27 @@ class ScatterToolUI(QtWidgets.QDialog):
     def _displacement_scale_ui(self):
         self.scale_lbl = QtWidgets.QLabel("Random Scale Offset")
         self.scale_lbl.setFixedWidth(125)
+        self.min_lbl = QtWidgets.QLabel("Min:")
+        self.max_lbl = QtWidgets.QLabel("Max:")
+
         self.x_lbl = QtWidgets.QLabel("X:")
-        self.x_scale_value_le = QtWidgets.QLineEdit("0")
-        self.x_scale_value_le.setFixedWidth(25)
-        self.x_scale_slide = self.slider_setup()
+        self.x_min_value_le = QtWidgets.QLineEdit("0")
+        #self.x_min_value_le.setFixedWidth(25)
+        self.x_max_value_le = QtWidgets.QLineEdit("0")
+        #self.x_max_value_le.setFixedWidth(25)
+
         self.y_lbl = QtWidgets.QLabel("Y:")
-        self.y_scale_value_le = QtWidgets.QLineEdit("0")
-        self.y_scale_value_le.setFixedWidth(25)
-        self.y_scale_slide = self.slider_setup()
+        self.y_min_value_le = QtWidgets.QLineEdit("0")
+        #self.y_min_value_le.setFixedWidth(25)
+        self.y_max_value_le = QtWidgets.QLineEdit("0")
+        #self.y_max_value_le.setFixedWidth(25)
+
         self.z_lbl = QtWidgets.QLabel("Z:")
-        self.z_scale_value_le = QtWidgets.QLineEdit("0")
-        self.z_scale_value_le.setFixedWidth(25)
-        self.z_scale_slide = self.slider_setup()
+        self.z_min_value_le = QtWidgets.QLineEdit("0")
+        #self.z_min_value_le.setFixedWidth(25)
+        self.z_max_value_le = QtWidgets.QLineEdit("0")
+        #self.z_max_value_le.setFixedWidth(25)
+
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.scale_lbl)
         self.widgetLayout = self._displacement_scale_widgets()
@@ -140,15 +142,19 @@ class ScatterToolUI(QtWidgets.QDialog):
 
     def _displacement_scale_widgets(self):
         layout = QtWidgets.QGridLayout()
-        layout.addWidget(self.x_lbl, 0, 0)
-        layout.addWidget(self.x_scale_value_le, 0, 1)
-        layout.addWidget(self.x_scale_slide, 0, 2)
-        layout.addWidget(self.y_lbl, 1, 0)
-        layout.addWidget(self.y_scale_value_le, 1, 1)
-        layout.addWidget(self.y_scale_slide, 1, 2)
-        layout.addWidget(self.z_lbl, 2, 0)
-        layout.addWidget(self.z_scale_value_le, 2, 1)
-        layout.addWidget(self.z_scale_slide, 2, 2)
+        layout.setColumnMinimumWidth(0, 25)
+        layout.setColumnStretch(3, 10)
+        layout.addWidget(self.min_lbl, 0, 1)
+        layout.addWidget(self.max_lbl, 0, 2)
+        layout.addWidget(self.x_lbl, 1, 0)
+        layout.addWidget(self.x_min_value_le, 1, 1)
+        layout.addWidget(self.x_max_value_le, 1, 2)
+        layout.addWidget(self.y_lbl, 2, 0)
+        layout.addWidget(self.y_min_value_le, 2, 1)
+        layout.addWidget(self.y_max_value_le, 2, 2)
+        layout.addWidget(self.z_lbl, 3, 0)
+        layout.addWidget(self.z_min_value_le, 3, 1)
+        layout.addWidget(self.z_max_value_le, 3, 2)
         return layout
 
     def selected_button_setup(self):
@@ -236,9 +242,12 @@ class ScatterToolUI(QtWidgets.QDialog):
 
                 cmds.rotate(x_rotate, y_rotate, z_rotate, new_instance)
 
-                x_scale = random.uniform(0, int(self.x_scale_value_le.text()))
-                y_scale = random.uniform(0, int(self.x_scale_value_le.text()))
-                z_scale = random.uniform(0, int(self.x_scale_value_le.text()))
+                x_scale = random.uniform(int(self.x_min_value_le.text()),
+                                         int(self.x_max_value_le.text()))
+                y_scale = random.uniform(int(self.y_min_value_le.text()),
+                                         int(self.y_max_value_le.text()))
+                z_scale = random.uniform(int(self.z_max_value_le.text()),
+                                         int(self.z_max_value_le.text()))
 
                 cmds.scale(x_scale, y_scale, z_scale, new_instance)
 
