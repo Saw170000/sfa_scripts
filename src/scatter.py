@@ -193,6 +193,7 @@ class ScatterToolUI(QtWidgets.QDialog):
         self.scatter_btn.clicked.connect(self.selected_scat_value)
         self.dest_btn.clicked.connect(self.selected_dest_value)
         self.apply_btn.clicked.connect(self.scatter_objects)
+        self.cancel_btn.clicked.connect(self.cancel_window)
 
     @QtCore.Slot()
     def selected_scat_value(self):
@@ -227,6 +228,9 @@ class ScatterToolUI(QtWidgets.QDialog):
 
         else:
             cmds.error("That didn't work")
+
+    def cancel_window(self):
+        ui.close()
 
 
 ui = ScatterToolUI()
