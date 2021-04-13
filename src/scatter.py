@@ -116,7 +116,7 @@ class ScatterToolUI(QtWidgets.QDialog):
         layout.addWidget(self.z_rotate_value_le, 2, 1)
         layout.addWidget(self.z_rotate_slide, 2, 2)
         return layout
-    
+
     def _displacement_scale_ui(self):
         self.scale_lbl = QtWidgets.QLabel("Random Scale Offset")
         self.scale_lbl.setFixedWidth(125)
@@ -192,6 +192,7 @@ class ScatterToolUI(QtWidgets.QDialog):
     def connection(self):
         self.scatter_btn.clicked.connect(self.selected_scat_value)
         self.dest_btn.clicked.connect(self.selected_dest_value)
+        self.apply_btn.clicked.connect(self.scatter_objects)
 
     @QtCore.Slot()
     def selected_scat_value(self):
@@ -202,6 +203,30 @@ class ScatterToolUI(QtWidgets.QDialog):
     def selected_dest_value(self):
         dest_temp = self.selected_name()
         self.dest_le.setText(str(dest_temp))
+
+    def return_scatter_name(self):
+        return self.scatter_le.text()
+
+    def return_destination_name(self):
+        return self.dest_le.text()
+
+    def scatter_objects(self):
+        scatter_name = self.scatter_le.text()
+        dest_name = self.dest_le.text()
+        vertex_names = cmds.polyListComponentConversion(str(dest_name), toVertex=True)
+        vertex_names = cmds.filterExpand(vertex_names, selectionMask=31)
+        cmds.select(vertex_names)
+
+        if cmds.objectType(scatter_name) == "transform":
+
+            for vertex in vertex_names:
+                new_instance = cmds.instance(scatter_name)
+                position = cmds.pointPosition(vertex, world=True)
+                cmds.move(position[0], position[1], position[2],
+                          new_instance, absolute=True, worldSpace=True)
+
+        else:
+            cmds.error("That didn't work")
 
 
 ui = ScatterToolUI()
