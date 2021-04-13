@@ -1,4 +1,7 @@
 import logging
+import random
+
+random.seed(1)
 
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCore import Qt
@@ -25,6 +28,7 @@ class ScatterToolUI(QtWidgets.QDialog):
         self.setMinimumWidth(425)
         self.setMinimumHeight(350)
         self.create_ui()
+        self.connection()
 
     def create_ui(self):
         title_lbl = QtWidgets.QLabel("Scatter Tool")
@@ -64,12 +68,14 @@ class ScatterToolUI(QtWidgets.QDialog):
         return slider
 
     def changed_value(self):
+        # rotation sliders
         size_rotate_x = self.x_rotate_slide.value()
         size_rotate_y = self.y_rotate_slide.value()
         size_rotate_z = self.z_rotate_slide.value()
         self.x_rotate_value_le.setText(str(size_rotate_x))
         self.y_rotate_value_le.setText(str(size_rotate_y))
         self.z_rotate_value_le.setText(str(size_rotate_z))
+        # scale sliders
         size_scale_x = self.x_scale_slide.value()
         size_scale_y = self.y_scale_slide.value()
         size_scale_z = self.z_scale_slide.value()
@@ -145,31 +151,57 @@ class ScatterToolUI(QtWidgets.QDialog):
         layout.addWidget(self.z_scale_slide, 2, 2)
         return layout
 
+    def selected_button_setup(self):
+        select_btn = QtWidgets.QPushButton("Selected")
+        select_btn.setFixedWidth(50)
+        return select_btn
+
+    def selected_label_setup(self):
+        select_le = QtWidgets.QLineEdit()
+        select_le.setFixedWidth(200)
+        return select_le
+
+    def selected_name(self):
+        first_object = cmds.ls(orderedSelection=True)
+        first_object = first_object[0]
+        cmds.select(first_object)
+        return first_object
+
     def _scatter_ui(self):
         self.scatterObj_lbl = QtWidgets.QLabel("Object to scatter:")
         self.scatterObj_lbl.setFixedWidth(125)
-        self.scatterObj_le = QtWidgets.QLineEdit()
-        self.scatterObj_le.setFixedWidth(200)
-        self.scatterObj_select_btn = QtWidgets.QPushButton("Selected")
-        self.scatterObj_select_btn.setFixedWidth(50)
+        self.scatter_btn = self.selected_button_setup()
+        self.scatter_le = self.selected_label_setup()
         layout = QtWidgets.QGridLayout()
         layout.addWidget(self.scatterObj_lbl, 0, 0)
-        layout.addWidget(self.scatterObj_le, 0, 1)
-        layout.addWidget(self.scatterObj_select_btn, 0, 2)
+        layout.addWidget(self.scatter_le, 0, 1)
+        layout.addWidget(self.scatter_btn, 0, 2)
         return layout
 
     def _destination_ui(self):
         self.destObj_lbl = QtWidgets.QLabel("Object to scatter onto:")
         self.destObj_lbl.setFixedWidth(125)
-        self.destObj_le = QtWidgets.QLineEdit()
-        self.destObj_le.setFixedWidth(200)
-        self.destObj_select_btn = QtWidgets.QPushButton("Selected")
-        self.destObj_select_btn.setFixedWidth(50)
+        self.dest_btn = self.selected_button_setup()
+        self.dest_le = self.selected_label_setup()
         layout = QtWidgets.QGridLayout()
         layout.addWidget(self.destObj_lbl, 0, 0)
-        layout.addWidget(self.destObj_le, 0, 1)
-        layout.addWidget(self.destObj_select_btn, 0, 2)
+        layout.addWidget(self.dest_le, 0, 1)
+        layout.addWidget(self.dest_btn, 0, 2)
         return layout
+
+    def connection(self):
+        self.scatter_btn.clicked.connect(self.selected_scat_value)
+        self.dest_btn.clicked.connect(self.selected_dest_value)
+
+    @QtCore.Slot()
+    def selected_scat_value(self):
+        scat_temp = self.selected_name()
+        self.scatter_le.setText(str(scat_temp))
+
+    @QtCore.Slot()
+    def selected_dest_value(self):
+        dest_temp = self.selected_name()
+        self.dest_le.setText(str(dest_temp))
 
 
 ui = ScatterToolUI()
