@@ -183,10 +183,10 @@ class ScatterToolUI(QtWidgets.QDialog):
 
     def selected_name(self):
         """Stores name of first object selected"""
-        first_object = cmds.ls(orderedSelection=True)
-        first_object = first_object[0]
-        cmds.select(first_object)
-        return first_object
+        sel_obj = cmds.ls(orderedSelection=True)
+        # sel_obj = sel_obj[0]
+        cmds.select(sel_obj)
+        return sel_obj
 
     def _scatter_ui(self):
         """The ui for object to scatter"""
@@ -222,14 +222,14 @@ class ScatterToolUI(QtWidgets.QDialog):
     @QtCore.Slot()
     def selected_scat_value(self):
         """Stores the selected object name as scatter name"""
-        scat_temp = self.selected_name()
-        self.scatter_le.setText(str(scat_temp))
+        self.scat_obj = self.selected_name()
+        self.scatter_le.setText(str(self.scat_obj[0]))
 
     @QtCore.Slot()
     def selected_dest_value(self):
         """Stores the selected object name as destination object name"""
-        dest_temp = self.selected_name()
-        self.dest_le.setText(str(dest_temp))
+        self.dest_obj = self.selected_name()
+        self.dest_le.setText(str(self.dest_obj))
 
     def return_scatter_name(self):
         """Returns scatter name"""
@@ -244,10 +244,10 @@ class ScatterToolUI(QtWidgets.QDialog):
         scatter_name = self.scatter_le.text()
         dest_name = self.dest_le.text()
 
-        if cmds.objExists(scatter_name) & cmds.objExists(dest_name):
+        if cmds.objExists(scatter_name) & cmds.objExists(self.dest_obj[0]):
             if cmds.objectType(scatter_name) == "transform":
 
-                vertex_names = cmds.polyListComponentConversion(str(dest_name), toVertex=True)
+                vertex_names = cmds.polyListComponentConversion(self.dest_obj, toVertex=True)
                 vertex_names = cmds.filterExpand(vertex_names, selectionMask=31)
 
                 cmds.select(vertex_names)
@@ -261,7 +261,7 @@ class ScatterToolUI(QtWidgets.QDialog):
         else:
             cmds.error("Couldn't find '" + scatter_name + "' or '"
                        + dest_name + "' object.")
-    
+
     def scatter_loop(self, instance_group, scatter_name, vertex_names):
         """The loop for scattering the scatter object onto each vertex"""
         for vertex in vertex_names:
