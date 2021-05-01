@@ -32,23 +32,29 @@ class ScatterToolUI(QtWidgets.QDialog):
         title_lbl.setStyleSheet("font: bold 20px")
         scatter_lay = self._scatter_ui()
         destination_lay = self._destination_ui()
+        align_lay = self._align_normals_ui()
+        scat_verts_lay = self._scatter_verts_onto_ui()
         displace_rotate_lay = self._displacement_rotation_ui()
         displace_scale_lay = self._displacement_scale_ui()
         apply_cancel_lay = self.button_setup()
         main_lay = self.main_lay_layout(apply_cancel_lay, destination_lay,
                                         displace_rotate_lay, displace_scale_lay,
-                                        scatter_lay, title_lbl)
+                                        scatter_lay, title_lbl, align_lay,
+                                        scat_verts_lay)
         self.setLayout(main_lay)
 
     def main_lay_layout(self, apply_cancel_lay, destination_lay,
                         displace_rotate_lay, displace_scale_lay, scatter_lay,
-                        title_lbl):
+                        title_lbl, align_lay, scat_verts_lay):
         """Organizes main ui widget layouts"""
         main_lay = QtWidgets.QVBoxLayout()
         main_lay.addWidget(title_lbl)
         main_lay.addSpacing(20)
         main_lay.addLayout(scatter_lay)
         main_lay.addLayout(destination_lay)
+        main_lay.addSpacing(20)
+        main_lay.addLayout(align_lay)
+        main_lay.addLayout(scat_verts_lay)
         main_lay.addSpacing(20)
         main_lay.addLayout(displace_rotate_lay)
         main_lay.addSpacing(20)
@@ -83,6 +89,30 @@ class ScatterToolUI(QtWidgets.QDialog):
         self.x_rotate_value_le.setText(str(size_rotate_x))
         self.y_rotate_value_le.setText(str(size_rotate_y))
         self.z_rotate_value_le.setText(str(size_rotate_z))
+
+    def _align_normals_ui(self):
+        layout = QtWidgets.QHBoxLayout()
+        align_lbl = QtWidgets.QLabel("Align to Normals: ")
+        align_lbl.setFixedWidth(125)
+        align_cbox = QtWidgets.QCheckBox()
+        layout.addWidget(align_lbl)
+        layout.addWidget(align_cbox)
+        return layout
+
+    def _scatter_verts_onto_ui(self):
+        layout = QtWidgets.QHBoxLayout()
+        verts_lbl = QtWidgets.QLabel("% of vertices to scatter onto: ")
+        verts_le = QtWidgets.QLineEdit("100")
+        verts_le.setFixedWidth(50)
+        percent_lbl = QtWidgets.QLabel("%")
+        percent_lbl.setFixedWidth(25)
+        scatter_slide = self.slider_setup()
+        scatter_slide.setMaximum(100)
+        layout.addWidget(verts_lbl)
+        layout.addWidget(verts_le)
+        layout.addWidget(percent_lbl)
+        layout.addWidget(scatter_slide)
+        return layout
 
     def _displacement_rotation_ui(self):
         """The ui for rotation"""
