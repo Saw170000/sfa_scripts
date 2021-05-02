@@ -96,9 +96,9 @@ class ScatterToolUI(QtWidgets.QDialog):
         layout = QtWidgets.QHBoxLayout()
         align_lbl = QtWidgets.QLabel("Align to Normals: ")
         align_lbl.setFixedWidth(125)
-        align_cbox = QtWidgets.QCheckBox()
+        self.align_normals_cbox = QtWidgets.QCheckBox()
         layout.addWidget(align_lbl)
-        layout.addWidget(align_cbox)
+        layout.addWidget(self.align_normals_cbox)
         return layout
 
     def _scatter_verts_onto_ui(self):
@@ -302,10 +302,16 @@ class ScatterToolUI(QtWidgets.QDialog):
                                          '_instance#', smartTransform=True)
             cmds.parent(new_instance, instance_group)
             position = cmds.pointPosition(vertex, world=True)
+
             cmds.move(position[0], position[1], position[2],
                       new_instance)
 
             self.scatter_rotate_scale(new_instance)
+
+            if self.align_normals_cbox.isChecked():
+                cmds.normalConstraint([vertex], new_instance,
+                                      aimVector=[0.0, 1.0, 0.0])
+                #cmds.makeIdentity(new_instance, apply=True)
 
     def scatter_rotate_scale(self, new_instance):
         """Generates random variables for rotate and scale"""
