@@ -83,9 +83,11 @@ class ScatterToolUI(QtWidgets.QDialog):
 
     def changed_value(self):
         """Keeps track of slider value and records it"""
+        size_scatter_verts = self.scatter_slide.value()
         size_rotate_x = self.x_rotate_slide.value()
         size_rotate_y = self.y_rotate_slide.value()
         size_rotate_z = self.z_rotate_slide.value()
+        self.verts_le.setText(str(size_scatter_verts))
         self.x_rotate_value_le.setText(str(size_rotate_x))
         self.y_rotate_value_le.setText(str(size_rotate_y))
         self.z_rotate_value_le.setText(str(size_rotate_z))
@@ -102,16 +104,16 @@ class ScatterToolUI(QtWidgets.QDialog):
     def _scatter_verts_onto_ui(self):
         layout = QtWidgets.QHBoxLayout()
         verts_lbl = QtWidgets.QLabel("% of vertices to scatter onto: ")
-        verts_le = QtWidgets.QLineEdit("100")
-        verts_le.setFixedWidth(50)
+        self.verts_le = QtWidgets.QLineEdit("100")
+        self.verts_le.setFixedWidth(50)
         percent_lbl = QtWidgets.QLabel("%")
         percent_lbl.setFixedWidth(25)
-        scatter_slide = self.slider_setup()
-        scatter_slide.setMaximum(100)
+        self.scatter_slide = self.slider_setup()
+        self.scatter_slide.setMaximum(100)
         layout.addWidget(verts_lbl)
-        layout.addWidget(verts_le)
+        layout.addWidget(self.verts_le)
         layout.addWidget(percent_lbl)
-        layout.addWidget(scatter_slide)
+        layout.addWidget(self.scatter_slide)
         return layout
 
     def _displacement_rotation_ui(self):
