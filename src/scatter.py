@@ -296,6 +296,8 @@ class ScatterToolUI(QtWidgets.QDialog):
 
     def scatter_loop(self, instance_group, scatter_name, vertex_names):
         """The loop for scattering the scatter object onto each vertex"""
+        vertex_names = self.percentage_to_spread_onto(vertex_names)
+
         for vertex in vertex_names:
             new_instance = cmds.instance(scatter_name,
                                          name=scatter_name +
@@ -311,7 +313,18 @@ class ScatterToolUI(QtWidgets.QDialog):
             if self.align_normals_cbox.isChecked():
                 cmds.normalConstraint([vertex], new_instance,
                                       aimVector=[0.0, 1.0, 0.0])
-                #cmds.makeIdentity(new_instance, apply=True)
+
+    def percentage_to_spread_onto(self, vertex_names):
+        """Deletes a percentage of vertexes from vertex list"""
+        percent_to_delete = 100 - int(self.verts_le.text())
+        num_in_list = len(vertex_names)
+        num_to_delete = int((float(percent_to_delete) / 100) * num_in_list)
+        while num_to_delete != 0:
+            random_value = int(random.uniform(0, (len(vertex_names)-1)))
+            vertex_names.pop(random_value)
+            num_to_delete = num_to_delete - 1
+        return vertex_names
+
 
     def scatter_rotate_scale(self, new_instance):
         """Generates random variables for rotate and scale"""
