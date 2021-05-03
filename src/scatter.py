@@ -39,14 +39,16 @@ class ScatterToolUI(QtWidgets.QDialog):
         displace_scale_lay = self._displacement_scale_ui()
         apply_cancel_lay = self.button_setup()
         main_lay = self.main_lay_layout(apply_cancel_lay, destination_lay,
-                                        displace_rotate_lay, displace_scale_lay,
-                                        scatter_lay, title_lbl, align_lay,
+                                        displace_rotate_lay,
+                                        displace_scale_lay, scatter_lay,
+                                        title_lbl, align_lay,
                                         scat_verts_lay, funky_lay)
         self.setLayout(main_lay)
 
     def main_lay_layout(self, apply_cancel_lay, destination_lay,
-                        displace_rotate_lay, displace_scale_lay, scatter_lay,
-                        title_lbl, align_lay, scat_verts_lay, funky_lay):
+                        displace_rotate_lay, displace_scale_lay,
+                        scatter_lay, title_lbl, align_lay, scat_verts_lay,
+                        funky_lay):
         """Organizes main ui widget layouts"""
         main_lay = QtWidgets.QVBoxLayout()
         main_lay.addWidget(title_lbl)
@@ -112,11 +114,14 @@ class ScatterToolUI(QtWidgets.QDialog):
         percent_lbl.setFixedWidth(25)
         self.scatter_slide = self.slider_setup()
         self.scatter_slide.setMaximum(100)
+        self._add_scatter_verts_widgets(layout, percent_lbl, verts_lbl)
+        return layout
+
+    def _add_scatter_verts_widgets(self, layout, percent_lbl, verts_lbl):
         layout.addWidget(verts_lbl)
         layout.addWidget(self.verts_le)
         layout.addWidget(percent_lbl)
         layout.addWidget(self.scatter_slide)
-        return layout
 
     def _displacement_rotation_ui(self):
         """The ui for rotation"""
@@ -164,9 +169,7 @@ class ScatterToolUI(QtWidgets.QDialog):
         self.scale_lbl.setFixedWidth(125)
         self.min_lbl = QtWidgets.QLabel("Min:")
         self.max_lbl = QtWidgets.QLabel("Max:")
-
         self._displacement_scale_xyz_widgets()
-
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.scale_lbl)
         self.widgetLayout = self._displacement_scale_layout()
@@ -190,6 +193,10 @@ class ScatterToolUI(QtWidgets.QDialog):
         layout = QtWidgets.QGridLayout()
         layout.setColumnMinimumWidth(0, 25)
         layout.setColumnStretch(3, 10)
+        self._add_displacement_widgets(layout)
+        return layout
+
+    def _add_displacement_widgets(self, layout):
         layout.addWidget(self.min_lbl, 0, 1)
         layout.addWidget(self.max_lbl, 0, 2)
         layout.addWidget(self.x_lbl, 1, 0)
@@ -201,7 +208,6 @@ class ScatterToolUI(QtWidgets.QDialog):
         layout.addWidget(self.z_lbl, 3, 0)
         layout.addWidget(self.z_min_value_le, 3, 1)
         layout.addWidget(self.z_max_value_le, 3, 2)
-        return layout
 
     def selected_button_setup(self):
         """Setup for creating Selected buttons"""
@@ -253,7 +259,6 @@ class ScatterToolUI(QtWidgets.QDialog):
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.funky_lbl)
         layout.addWidget(self.funky_btn)
-
         return layout
 
     def connection(self):
@@ -270,20 +275,25 @@ class ScatterToolUI(QtWidgets.QDialog):
         self.x_rotate_value_le.setText(str(int(random.uniform(0, 360))))
         self.y_rotate_value_le.setText(str(int(random.uniform(0, 360))))
         self.z_rotate_value_le.setText(str(int(random.uniform(0, 360))))
+        self._align_normals_randomize()
+        self._scale_randomize()
 
+    def _scale_randomize(self):
+        self.x_min_value_le.setText(str(int(random.uniform(1, 5))))
+        self.x_max_value_le.setText(str(self.max_rand
+                                        (self.x_min_value_le.text())))
+        self.y_min_value_le.setText(str(int(random.uniform(1, 5))))
+        self.y_max_value_le.setText(str(self.max_rand
+                                        (self.y_min_value_le.text())))
+        self.z_min_value_le.setText(str(int(random.uniform(1, 5))))
+        self.z_max_value_le.setText(str(self.max_rand
+                                        (self.z_min_value_le.text())))
+
+    def _align_normals_randomize(self):
         if (int(random.uniform(0, 2))) == 0:
             self.align_normals_cbox.setChecked(True)
         else:
             self.align_normals_cbox.setChecked(False)
-
-        self.x_min_value_le.setText(str(int(random.uniform(1, 5))))
-        self.x_max_value_le.setText(str(self.max_rand(self.x_min_value_le.text())))
-
-        self.y_min_value_le.setText(str(int(random.uniform(1, 5))))
-        self.y_max_value_le.setText(str(self.max_rand(self.y_min_value_le.text())))
-
-        self.z_min_value_le.setText(str(int(random.uniform(1, 5))))
-        self.z_max_value_le.setText(str(self.max_rand(self.z_min_value_le.text())))
 
     def max_rand(self, min_rand):
         min_rand = int(min_rand)
@@ -320,13 +330,16 @@ class ScatterToolUI(QtWidgets.QDialog):
         if cmds.objExists(scatter_name) & cmds.objExists(self.dest_obj[0]):
             if cmds.objectType(scatter_name) == "transform":
 
-                vertex_names = cmds.polyListComponentConversion(self.dest_obj, toVertex=True)
-                vertex_names = cmds.filterExpand(vertex_names, selectionMask=31)
+                vertex_names = cmds.polyListComponentConversion \
+                    (self.dest_obj, toVertex=True)
+                vertex_names = cmds.filterExpand(vertex_names,
+                                                 selectionMask=31)
 
                 cmds.select(vertex_names)
 
                 instance_group = cmds.group(empty=True,
-                                            name=scatter_name + '_instance_grp#', )
+                                            name=scatter_name +
+                                                 '_instance_grp#', )
                 self.scatter_loop(instance_group, scatter_name, vertex_names)
 
             else:
@@ -338,19 +351,16 @@ class ScatterToolUI(QtWidgets.QDialog):
     def scatter_loop(self, instance_group, scatter_name, vertex_names):
         """The loop for scattering the scatter object onto each vertex"""
         vertex_names = self.percentage_to_spread_onto(vertex_names)
-
         for vertex in vertex_names:
             new_instance = cmds.instance(scatter_name,
                                          name=scatter_name +
-                                         '_instance#', smartTransform=True)
+                                              '_instance#',
+                                         smartTransform=True)
             cmds.parent(new_instance, instance_group)
             position = cmds.pointPosition(vertex, world=True)
-
             cmds.move(position[0], position[1], position[2],
                       new_instance)
-
             self.scatter_rotate_scale(new_instance)
-
             if self.align_normals_cbox.isChecked():
                 cmds.normalConstraint([vertex], new_instance,
                                       aimVector=[0.0, 1.0, 0.0])
@@ -361,11 +371,10 @@ class ScatterToolUI(QtWidgets.QDialog):
         num_in_list = len(vertex_names)
         num_to_delete = int((float(percent_to_delete) / 100) * num_in_list)
         while num_to_delete != 0:
-            random_value = int(random.uniform(0, (len(vertex_names)-1)))
+            random_value = int(random.uniform(0, (len(vertex_names) - 1)))
             vertex_names.pop(random_value)
             num_to_delete = num_to_delete - 1
         return vertex_names
-
 
     def scatter_rotate_scale(self, new_instance):
         """Generates random variables for rotate and scale"""
