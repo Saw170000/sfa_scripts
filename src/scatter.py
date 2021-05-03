@@ -34,18 +34,19 @@ class ScatterToolUI(QtWidgets.QDialog):
         destination_lay = self._destination_ui()
         align_lay = self._align_normals_ui()
         scat_verts_lay = self._scatter_verts_onto_ui()
+        funky_lay = self._funky_mode_ui()
         displace_rotate_lay = self._displacement_rotation_ui()
         displace_scale_lay = self._displacement_scale_ui()
         apply_cancel_lay = self.button_setup()
         main_lay = self.main_lay_layout(apply_cancel_lay, destination_lay,
                                         displace_rotate_lay, displace_scale_lay,
                                         scatter_lay, title_lbl, align_lay,
-                                        scat_verts_lay)
+                                        scat_verts_lay, funky_lay)
         self.setLayout(main_lay)
 
     def main_lay_layout(self, apply_cancel_lay, destination_lay,
                         displace_rotate_lay, displace_scale_lay, scatter_lay,
-                        title_lbl, align_lay, scat_verts_lay):
+                        title_lbl, align_lay, scat_verts_lay, funky_lay):
         """Organizes main ui widget layouts"""
         main_lay = QtWidgets.QVBoxLayout()
         main_lay.addWidget(title_lbl)
@@ -55,6 +56,7 @@ class ScatterToolUI(QtWidgets.QDialog):
         main_lay.addSpacing(20)
         main_lay.addLayout(align_lay)
         main_lay.addLayout(scat_verts_lay)
+        main_lay.addLayout(funky_lay)
         main_lay.addSpacing(20)
         main_lay.addLayout(displace_rotate_lay)
         main_lay.addSpacing(20)
@@ -244,12 +246,51 @@ class ScatterToolUI(QtWidgets.QDialog):
         layout.addWidget(self.dest_btn, 0, 2)
         return layout
 
+    def _funky_mode_ui(self):
+        """Randomizes the options"""
+        self.funky_lbl = QtWidgets.QLabel("Funky Mode? ")
+        self.funky_btn = QtWidgets.QPushButton("Randomize Settings")
+        layout = QtWidgets.QHBoxLayout()
+        layout.addWidget(self.funky_lbl)
+        layout.addWidget(self.funky_btn)
+
+        return layout
+
     def connection(self):
         """Connects buttons"""
         self.scatter_btn.clicked.connect(self.selected_scat_value)
         self.dest_btn.clicked.connect(self.selected_dest_value)
         self.apply_btn.clicked.connect(self.scatter_objects)
         self.cancel_btn.clicked.connect(self.cancel_window)
+        self.funky_btn.clicked.connect(self.funky_mode)
+
+    @QtCore.Slot()
+    def funky_mode(self):
+        self.verts_le.setText(str(int(random.uniform(0, 100))))
+        self.x_rotate_value_le.setText(str(int(random.uniform(0, 360))))
+        self.y_rotate_value_le.setText(str(int(random.uniform(0, 360))))
+        self.z_rotate_value_le.setText(str(int(random.uniform(0, 360))))
+
+        if (int(random.uniform(0, 2))) == 0:
+            self.align_normals_cbox.setChecked(True)
+        else:
+            self.align_normals_cbox.setChecked(False)
+
+        self.x_min_value_le.setText(str(int(random.uniform(1, 5))))
+        self.x_max_value_le.setText(str(self.max_rand(self.x_min_value_le.text())))
+
+        self.y_min_value_le.setText(str(int(random.uniform(1, 5))))
+        self.y_max_value_le.setText(str(self.max_rand(self.y_min_value_le.text())))
+
+        self.z_min_value_le.setText(str(int(random.uniform(1, 5))))
+        self.z_max_value_le.setText(str(self.max_rand(self.z_min_value_le.text())))
+
+    def max_rand(self, min_rand):
+        min_rand = int(min_rand)
+        max_rand = int(random.uniform(0, 8))
+        while max_rand <= min_rand:
+            max_rand = (int(random.uniform(0, 8)))
+        return max_rand
 
     @QtCore.Slot()
     def selected_scat_value(self):
@@ -336,7 +377,7 @@ class ScatterToolUI(QtWidgets.QDialog):
                                  int(self.x_max_value_le.text()))
         y_scale = random.uniform(int(self.y_min_value_le.text()),
                                  int(self.y_max_value_le.text()))
-        z_scale = random.uniform(int(self.z_max_value_le.text()),
+        z_scale = random.uniform(int(self.z_min_value_le.text()),
                                  int(self.z_max_value_le.text()))
         cmds.scale(x_scale, y_scale, z_scale, new_instance)
 
